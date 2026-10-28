@@ -215,8 +215,8 @@ export default async function DashboardPage() {
               style={{ textShadow: "0 0 20px var(--linen), 0 0 8px var(--linen)" }}
             >
               Lab reports, nutrition labels, restaurant menus, the running list on your fridge —
-              NutrifyAI turns everything you eat and everything your doctor sends you into one
-              plain, trustworthy read.
+              Nouriq turns what you eat and what your doctor shares into one clear, personal
+              picture of your health.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
               <Link

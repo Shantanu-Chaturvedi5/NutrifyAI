@@ -58,7 +58,7 @@ export function ProfileHero({
             {user?.fullName ?? "Your profile"}
           </h1>
           <p className="mt-2 max-w-[46ch] text-sm text-graphite-70">
-            Your information helps NutrifyAI personalize your nutrition insights, reports and recommendations.
+            Your information helps Nouriq personalize your nutrition insights, reports and recommendations.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-graphite-70">
             {profile && (

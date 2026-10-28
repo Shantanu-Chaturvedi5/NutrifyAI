@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "NutrifyAI Core API",
+                title = "Nouriq Core API",
                 version = "v1",
                 description = "Auth, health profiles, medical reports, products, reviews & ratings."
         ),

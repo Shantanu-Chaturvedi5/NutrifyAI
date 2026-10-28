@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="NutrifyAI — AI/ML service",
+    title="Nouriq — AI/ML service",
     version="0.1.0",
     description=(
         "OCR, health report analysis, RAG chatbot, recommendation engine, "

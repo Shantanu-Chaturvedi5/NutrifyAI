@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowUpRight, Leaf, Sparkles } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Brand } from "@/components/Brand";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,14 +14,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-10">
         <header className="flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center gap-3" aria-label="NutrifyAI home">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sage-soft text-sage">
-              <Leaf className="h-5 w-5" strokeWidth={2} />
-            </span>
-            <span className="font-display text-xl font-semibold tracking-tight text-graphite">
-              Nutrify<span className="italic text-garnet">AI</span>
-            </span>
-          </Link>
+          <Brand href="/" />
           <ThemeToggle />
         </header>
 

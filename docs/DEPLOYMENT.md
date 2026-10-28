@@ -1,4 +1,4 @@
-# NutrifyAI — Deployment Guide
+# Nouriq — Deployment Guide
 
 This walks through deploying the stack to a single VPS with Docker
 Compose. It's sized for a portfolio/demo deployment, not for handling

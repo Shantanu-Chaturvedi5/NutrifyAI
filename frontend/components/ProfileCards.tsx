@@ -110,7 +110,7 @@ export function PersonalizeCard() {
   ];
   return (
     <section className="rounded-2xl border border-hairline bg-card p-5">
-      <CardHead title="How NutrifyAI personalizes your experience" subtitle="Your profile helps us deliver more accurate and relevant insights." />
+      <CardHead title="How Nouriq personalizes your experience" subtitle="Your profile helps us deliver more accurate and relevant insights." />
       <div className="grid gap-3 md:grid-cols-3">
         {items.map((i) => (
           <div key={i.t} className="rounded-2xl border border-hairline bg-linen p-3.5">

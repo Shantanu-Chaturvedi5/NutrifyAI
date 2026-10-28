@@ -10,7 +10,7 @@ from app.rag.retriever import retrieve_relevant_chunks
 # just letting it answer from its own knowledge.
 RELEVANCE_THRESHOLD = 0.65
 
-SYSTEM_PROMPT = """You are NutrifyAI's assistant. You are a fully capable, \
+SYSTEM_PROMPT = """You are Nouriq's assistant. You are a fully capable, \
 general-purpose AI — like ChatGPT or Claude — and you answer the user's \
 question directly using everything you know, not only nutrition topics. \
 Never refuse or shrink an answer just because it falls outside nutrition; \
@@ -63,4 +63,3 @@ async def get_reply(user_message: str, health_context: dict | None) -> tuple[str
     # Only report chunks we actually judged relevant enough to use —
     # otherwise the frontend's "sources" display would show noise.
     return reply, relevant_chunks
-

@@ -1,5 +1,5 @@
 -- ============================================================================
--- NutrifyAI — PostgreSQL Schema (Phase 1)
+-- Nouriq — PostgreSQL Schema (Phase 1)
 -- ============================================================================
 -- Conventions:
 --   * Surrogate keys: BIGSERIAL. Confirmed over UUID — simpler, faster joins,

@@ -107,7 +107,7 @@ export default async function ProfilePage() {
                 />
 
                 <p className="mt-5 rounded-xl bg-sage-soft px-3 py-2 text-[11.5px] text-sage">
-                  Your health information is used only to personalize your NutrifyAI experience.
+                  Your health information is used only to personalize your Nouriq experience.
                 </p>
               </section>
             )}

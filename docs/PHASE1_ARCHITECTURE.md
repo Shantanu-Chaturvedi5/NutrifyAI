@@ -1,8 +1,8 @@
-# NutrifyAI — Phase 1: Architecture & Database Design
+# Nouriq — Phase 1: Architecture & Database Design
 
 ## 1. System overview
 
-NutrifyAI is split into two backend services rather than one monolith, because
+Nouriq is split into two backend services rather than one monolith, because
 the two halves of the problem have genuinely different shapes:
 
 | Concern | Service | Why |

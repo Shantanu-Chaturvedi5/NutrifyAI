@@ -2,7 +2,7 @@ import Link from "next/link";
 import { logoutAction } from "@/lib/actions/auth";
 import { getUnreadCount } from "@/lib/actions/notifications";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Sprout } from "lucide-react";
+import { Brand } from "@/components/Brand";
 import type { UserResponse } from "@/lib/types";
 
 import { NavLinks } from "@/components/NavLinks";
@@ -21,23 +21,7 @@ export async function Nav({ user }: { user: UserResponse | null }) {
   return (
     <header className="sticky top-0 z-50 border-b border-glass-border bg-[var(--nav-glass)] backdrop-blur-xl shadow-[0_8px_24px_rgba(28,34,28,0.08)]">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-3.5 lg:gap-0">
-        <Link
-          href={user ? "/dashboard" : "/"}
-          className="flex min-w-0 items-center gap-2 text-graphite sm:gap-3"
-          aria-label="NutrifyAI home"
-        >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sage-soft text-sage shadow-inner">
-            <Sprout className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
-          </span>
-          <span className="flex flex-col">
-            <span className="font-display text-xl font-semibold leading-none tracking-tight">
-              Nutrify<span className="italic text-garnet">AI</span>
-            </span>
-            <span className="mt-1 hidden font-data text-[8px] font-medium uppercase tracking-[0.2em] text-graphite-70 sm:block">
-              Nutrition intelligence
-            </span>
-          </span>
-        </Link>
+        <Brand href={user ? "/dashboard" : "/"} />
 
         <div className="ml-auto shrink-0 lg:ml-0">
           <NavLinks links={LINKS} userName={user?.fullName ?? null} />

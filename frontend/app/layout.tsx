@@ -15,8 +15,8 @@ import { ThemeFlashGuard } from "@/components/ThemeFlashGuard";
 import { ChatBubble } from "@/components/ChatBubble";
 
 export const metadata: Metadata = {
-  title: "NutrifyAI",
-  description: "AI-powered health & nutrition intelligence platform",
+  title: "Nouriq | Personal Nutrition Intelligence",
+  description: "Understand your nutrition with health insights and guidance shaped around you.",
 };
 
 // The same variable names next/font used to define, now pointing at the

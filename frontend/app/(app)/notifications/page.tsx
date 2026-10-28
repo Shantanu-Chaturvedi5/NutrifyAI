@@ -47,7 +47,7 @@ const TYPE_PRESENTATION: Record<
     tone: "notification-tone-amber",
   },
   SYSTEM: {
-    label: "NutrifyAI update",
+    label: "Nouriq update",
     icon: Wrench,
     tone: "notification-tone-sage",
   },

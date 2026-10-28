@@ -14,7 +14,7 @@ const ANALYSIS_STEPS = [
   {
     number: "02",
     title: "Extract",
-    description: "NutrifyAI identifies report values and their reference ranges.",
+    description: "Nouriq identifies report values and their reference ranges.",
     icon: ScanLine,
   },
   {
@@ -78,7 +78,7 @@ export default async function ReportsPage() {
               <br className="hidden sm:block" /> it&apos;s your health, explained.
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-6 text-graphite-70 sm:text-base">
-              Bring your lab results into one clear workspace. NutrifyAI extracts key values,
+              Bring your lab results into one clear workspace. Nouriq extracts key values,
               explains what they mean, and helps you prepare for more informed health conversations.
             </p>
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-graphite-70">
@@ -162,7 +162,7 @@ export default async function ReportsPage() {
         <div className="grid gap-8 lg:grid-cols-[1fr_0.82fr] lg:items-center">
           <div>
             <p className="font-data text-[10px] font-semibold uppercase tracking-[0.2em] text-sage">
-              How NutrifyAI analyzes your reports
+              How Nouriq analyzes your reports
             </p>
             <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-graphite sm:text-3xl">
               From raw data to clearer insights

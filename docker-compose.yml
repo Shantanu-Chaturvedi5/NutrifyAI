@@ -1,6 +1,6 @@
 version: "3.9"
 
-# NutrifyAI — local development stack.
+# Nouriq — local development stack.
 #
 # Ollama is NOT containerized here on purpose: you already have it running
 # on the host. ai-service reaches it via OLLAMA_BASE_URL (see ai-service/.env).

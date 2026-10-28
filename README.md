@@ -1,6 +1,6 @@
-# NutrifyAI
+# Nouriq
 
-AI-powered health & nutrition intelligence platform. See
+Personal nutrition intelligence, in tune with you. See
 [`docs/PHASE1_ARCHITECTURE.md`](docs/PHASE1_ARCHITECTURE.md) for the full
 architecture and database design.
 

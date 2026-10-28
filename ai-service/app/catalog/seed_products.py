@@ -34,7 +34,7 @@ import httpx
 from app.db.pool import close_pool, get_pool
 
 OFF_SEARCH_URL = "https://world.openfoodfacts.org/api/v2/search"
-USER_AGENT = "NutrifyAI-CatalogSeeder/1.0 (portfolio project; contact via repo)"
+USER_AGENT = "Nouriq-CatalogSeeder/1.0 (portfolio project; contact via repo)"
 
 # (Open Food Facts category query term, our app's display category)
 #
