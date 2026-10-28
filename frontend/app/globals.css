@@ -1,0 +1,462 @@
+@import "tailwindcss";
+
+/*
+ * Design language: the "specimen" system. Every reading in the app — a
+ * product score, a diet plan meal, a lab value — is presented the way a
+ * naturalist would label a sample: an accession number (a real database
+ * reference, never decorative), a source, a dial, and a plain note
+ * underneath. The dial (RadialGauge / WaterDroplet) is the one recurring
+ * shape across the app.
+ *
+ * MIGRATION NOTE: the original "Nutrition Facts label" tokens below
+ * (--color-paper, --color-teal, --color-critical, etc.) are kept
+ * defined and untouched so pages not yet migrated to the specimen
+ * system keep rendering exactly as before. Only migrate a page's
+ * classes to the new tokens (graphite/linen/card/garnet/saffron/sage)
+ * at the same time you migrate its markup to the new components —
+ * never remove an old token while anything still references it.
+ */
+
+/* --- New "specimen" design system tokens — light theme (default) --- */
+:root {
+  --ink: #1c221c;
+  --ink-70: rgba(28, 34, 28, 0.7);
+  --ink-45: rgba(28, 34, 28, 0.46);
+  --linen: #f0f4eb;
+  --linen-deep: #e2e9d8;
+  --card: #ffffff;
+  --glass-card: rgba(255, 255, 255, 0.72);
+  --nav-glass: rgba(213, 232, 217, 0.88);
+  --glass-card-inner: rgba(240, 244, 235, 0.60);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --garnet: #d91f42;
+  --garnet-soft: rgba(217, 31, 66, 0.1);
+  --saffron: #de8c0f;
+  --saffron-soft: rgba(222, 140, 15, 0.14);
+  --sage: #149264;
+  --sage-soft: rgba(20, 146, 100, 0.12);
+  --water-blue: #31aeca;
+  --hairline: rgba(28, 34, 28, 0.12);
+  --grocery-card-sage: #e3eee2;
+  --grocery-card-mint: #eaf3eb;
+  --grocery-card-warm: #f4ede0;
+  --grocery-icon-sage-bg: #edf7f1;
+  --grocery-icon-sage: #1d765e;
+  --grocery-icon-warm-bg: #f8f4ee;
+  --grocery-icon-warm: #96600d;
+  --scan-upload-surface: rgba(247, 252, 253, 0.94);
+  --scan-history-surface: rgba(251, 250, 255, 0.94);
+  --scan-upload-border: rgba(140, 185, 199, 0.42);
+  --scan-history-border: rgba(178, 165, 206, 0.42);
+  --scan-badge-bg: rgba(230, 244, 247, 0.88);
+  --scan-badge-border: rgba(137, 184, 197, 0.48);
+  --scan-badge-text: #236d80;
+  --scan-counter-bg: #e4f2f5;
+  --scan-art: rgba(67, 139, 160, 0.5);
+  --scan-art-faint: rgba(67, 139, 160, 0.2);
+  --scan-paper-art: rgba(120, 109, 154, 0.35);
+  --scan-action: #236d80;
+  --scan-action-hover: #1b5b6b;
+  --menu-accent: #94522f;
+  --menu-soft: #f7ede3;
+  --menu-paper: #fbf6ef;
+  --menu-art: rgba(148, 82, 47, 0.22);
+  --menu-border: rgba(148, 82, 47, 0.28);
+  --menu-recommended: #e9f2e8;
+  --menu-recommended-border: #8db18e;
+  --notification-accent: #62548f;
+  --notification-soft: #eeebf7;
+  --notification-paper: #faf9fd;
+  --notification-art: rgba(98, 84, 143, 0.22);
+  --notification-border: rgba(98, 84, 143, 0.24);
+  --notification-unread: #f3f0fa;
+  --notification-blue-bg: #e5f1f6;
+  --notification-blue-fg: #356d83;
+  --notification-rose-bg: #f8e8ec;
+  --notification-rose-fg: #a14860;
+  --notification-violet-bg: #eee9f8;
+  --notification-violet-fg: #665294;
+  --notification-amber-bg: #f7efdf;
+  --notification-amber-fg: #956b22;
+  --notification-sage-bg: #e8f1e8;
+  --notification-sage-fg: #39744f;
+}
+
+/* --- Dark theme override, applied via data-theme="dark" on <html> --- */
+[data-theme="dark"] {
+  --ink: #f5f7f2;
+  --ink-70: rgba(245, 247, 242, 0.78);
+  --ink-45: rgba(245, 247, 242, 0.52);
+  --linen: #111512;
+  --linen-deep: #161b17;
+  --card: #18201a;
+  --glass-card: rgba(22, 28, 23, 0.82);
+  --nav-glass: rgba(25, 57, 44, 0.88);
+  --glass-card-inner: rgba(17, 22, 18, 0.75);
+  --glass-border: rgba(245, 247, 242, 0.12);
+  --garnet: #f0304f;
+  --garnet-soft: rgba(240, 48, 79, 0.20);
+  --saffron: #f5ac3c;
+  --saffron-soft: rgba(245, 172, 60, 0.20);
+  --sage: #31ce93;
+  --sage-soft: rgba(49, 206, 147, 0.20);
+  --water-blue: #73d8ef;
+  --hairline: rgba(245, 247, 242, 0.12);
+  --grocery-card-sage: #1a2c23;
+  --grocery-card-mint: #1d2b24;
+  --grocery-card-warm: #302719;
+  --grocery-icon-sage-bg: #284534;
+  --grocery-icon-sage: #a4e7c2;
+  --grocery-icon-warm-bg: #4a3820;
+  --grocery-icon-warm: #ffdc9d;
+  --scan-upload-surface: #17262b;
+  --scan-history-surface: #211d2b;
+  --scan-upload-border: rgba(124, 201, 220, 0.24);
+  --scan-history-border: rgba(184, 168, 232, 0.24);
+  --scan-badge-bg: #18313a;
+  --scan-badge-border: rgba(124, 201, 220, 0.3);
+  --scan-badge-text: #a7e4f0;
+  --scan-counter-bg: #1d3c45;
+  --scan-art: rgba(124, 201, 220, 0.42);
+  --scan-art-faint: rgba(124, 201, 220, 0.18);
+  --scan-paper-art: rgba(184, 168, 232, 0.3);
+  --scan-action: #17788d;
+  --scan-action-hover: #1d8da3;
+  --menu-accent: #efb78f;
+  --menu-soft: #34251e;
+  --menu-paper: #29211c;
+  --menu-art: rgba(239, 183, 143, 0.22);
+  --menu-border: rgba(239, 183, 143, 0.25);
+  --menu-recommended: #1c3025;
+  --menu-recommended-border: #548665;
+  --notification-accent: #c3b4f0;
+  --notification-soft: #302b3d;
+  --notification-paper: #211f29;
+  --notification-art: rgba(195, 180, 240, 0.2);
+  --notification-border: rgba(195, 180, 240, 0.2);
+  --notification-unread: #2a2636;
+  --notification-blue-bg: #20343c;
+  --notification-blue-fg: #a4d8e8;
+  --notification-rose-bg: #3b252d;
+  --notification-rose-fg: #f0b3c2;
+  --notification-violet-bg: #302841;
+  --notification-violet-fg: #c7b5f0;
+  --notification-amber-bg: #3a3020;
+  --notification-amber-fg: #f2d394;
+  --notification-sage-bg: #22342a;
+  --notification-sage-fg: #a9ddb4;
+}
+
+@theme {
+  /* Original tokens — literal values, unchanged from before */
+  --color-paper: #f6f5f0;
+  --color-paper-dim: #eeece4;
+  --color-ink: #1c1e1b;
+  --color-ink-soft: #55564f;
+  --color-teal: #1f6f5c;
+  --color-teal-soft: #e3ede9;
+  --color-amber: #c1791f;
+  --color-amber-soft: #f6e9d7;
+  --color-critical: #b3413c;
+  --color-critical-soft: #f5e2e0;
+
+  /* New specimen-system tokens — theme-aware via the CSS variables
+     above. Named "graphite" rather than "ink" deliberately — the old
+     system already defines --color-ink (used by border-ink/bg-ink/
+     text-ink across every unmigrated page) as a flat, non-reactive
+     literal. Reusing that name here would make old pages' text
+     silently follow the dark-mode toggle while their --color-paper
+     background stays static, washing their text out to near-invisible
+     in dark mode. */
+  --color-graphite: var(--ink);
+  --color-graphite-70: var(--ink-70);
+  --color-graphite-45: var(--ink-45);
+  --color-linen: var(--linen);
+  --color-linen-deep: var(--linen-deep);
+  --color-card: var(--card);
+  --color-garnet: var(--garnet);
+  --color-garnet-soft: var(--garnet-soft);
+  --color-saffron: var(--saffron);
+  --color-saffron-soft: var(--saffron-soft);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --color-hairline: var(--hairline);
+
+  --color-glass-card: var(--glass-card);
+  --color-glass-card-inner: var(--glass-card-inner);
+  --color-glass-border: var(--glass-border);
+
+  /* Fonts — swapped app-wide. This is a cosmetic-only change (every
+     page already using font-display/font-body/font-data utility
+     classes just renders in the new faces immediately), not a
+     breaking one, so it applies everywhere right away rather than
+     waiting for each page's full re-skin. */
+  --font-display: var(--font-fraunces), serif;
+  --font-body: var(--font-work-sans), system-ui, sans-serif;
+  --font-data: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--linen);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.scan-page-background {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(183, 220, 233, 0.45), transparent 56%),
+    radial-gradient(ellipse at 0% 55%, rgba(210, 230, 242, 0.72), transparent 31%),
+    radial-gradient(ellipse at 100% 72%, rgba(226, 220, 245, 0.65), transparent 32%);
+}
+
+[data-theme="dark"] .scan-page-background {
+  color-scheme: dark;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(28, 85, 101, 0.34), transparent 56%),
+    radial-gradient(ellipse at 0% 55%, rgba(29, 60, 83, 0.34), transparent 31%),
+    radial-gradient(ellipse at 100% 72%, rgba(65, 49, 86, 0.3), transparent 32%);
+}
+
+.scan-action {
+  background-color: var(--scan-action);
+  color: #fff;
+  transition: background-color 160ms ease;
+}
+
+.scan-action:hover {
+  background-color: var(--scan-action-hover);
+}
+
+.scan-file-input {
+  border: 1px solid var(--scan-upload-border);
+  background: var(--scan-badge-bg);
+  color: var(--ink);
+}
+
+.scan-file-input::file-selector-button {
+  margin-right: 0.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--scan-action);
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scan-file-input::file-selector-button:hover {
+  background: var(--scan-action-hover);
+}
+
+.menu-page-background {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(239, 216, 186, 0.5), transparent 56%),
+    radial-gradient(ellipse at 0% 58%, rgba(229, 210, 187, 0.65), transparent 32%),
+    radial-gradient(ellipse at 100% 70%, rgba(239, 224, 206, 0.65), transparent 34%);
+}
+
+[data-theme="dark"] .menu-page-background {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(111, 66, 39, 0.28), transparent 56%),
+    radial-gradient(ellipse at 0% 58%, rgba(77, 52, 38, 0.32), transparent 32%),
+    radial-gradient(ellipse at 100% 70%, rgba(92, 63, 45, 0.28), transparent 34%);
+}
+
+.menu-file-input {
+  border: 1px solid var(--menu-border);
+  background: var(--menu-soft);
+  color: var(--ink);
+}
+
+.menu-file-input::file-selector-button {
+  margin-right: 0.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--menu-accent);
+  padding: 0.5rem 0.75rem;
+  color: var(--linen);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menu-action {
+  background-color: var(--menu-accent);
+  color: var(--linen);
+  transition: filter 160ms ease;
+}
+
+.menu-action:hover {
+  filter: brightness(0.9);
+}
+
+.notification-page-background {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(216, 207, 238, 0.45), transparent 56%),
+    radial-gradient(ellipse at 0% 58%, rgba(215, 231, 238, 0.7), transparent 32%),
+    radial-gradient(ellipse at 100% 70%, rgba(236, 221, 231, 0.6), transparent 34%);
+}
+
+[data-theme="dark"] .notification-page-background {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(76, 62, 111, 0.28), transparent 56%),
+    radial-gradient(ellipse at 0% 58%, rgba(37, 68, 78, 0.3), transparent 32%),
+    radial-gradient(ellipse at 100% 70%, rgba(79, 45, 68, 0.24), transparent 34%);
+}
+
+.notification-tone-blue {
+  background-color: var(--notification-blue-bg);
+  color: var(--notification-blue-fg);
+}
+
+.notification-tone-rose {
+  background-color: var(--notification-rose-bg);
+  color: var(--notification-rose-fg);
+}
+
+.notification-tone-violet {
+  background-color: var(--notification-violet-bg);
+  color: var(--notification-violet-fg);
+}
+
+.notification-tone-amber {
+  background-color: var(--notification-amber-bg);
+  color: var(--notification-amber-fg);
+}
+
+.notification-tone-sage {
+  background-color: var(--notification-sage-bg);
+  color: var(--notification-sage-fg);
+}
+
+.dashboard-water-corners {
+  background-image:
+    radial-gradient(ellipse 130px 100px at 0% 0%, color-mix(in srgb, var(--water-blue) 20%, transparent), transparent 75%),
+    radial-gradient(ellipse 130px 100px at 100% 0%, color-mix(in srgb, var(--water-blue) 16%, transparent), transparent 75%),
+    radial-gradient(ellipse 130px 100px at 0% 100%, color-mix(in srgb, var(--water-blue) 16%, transparent), transparent 75%),
+    radial-gradient(ellipse 130px 100px at 100% 100%, color-mix(in srgb, var(--water-blue) 20%, transparent), transparent 75%);
+}
+
+.diet-plan-canvas {
+  margin-left: calc(50% - 50vw);
+  background-color: var(--linen);
+  background-image:
+    radial-gradient(ellipse 28rem 22rem at 0% 0%, color-mix(in srgb, var(--sage) 10%, transparent), transparent 76%),
+    radial-gradient(ellipse 30rem 24rem at 100% 2%, color-mix(in srgb, var(--water-blue) 12%, transparent), transparent 76%),
+    radial-gradient(ellipse 28rem 22rem at 0% 100%, color-mix(in srgb, var(--garnet) 7%, transparent), transparent 78%),
+    radial-gradient(ellipse 30rem 24rem at 100% 100%, color-mix(in srgb, var(--saffron) 9%, transparent), transparent 78%);
+}
+
+html:has(.diet-plan-canvas) {
+  overflow-x: clip;
+}
+
+.diet-leaf-sprig {
+  position: absolute;
+  width: 140px;
+  height: 230px;
+  pointer-events: none;
+  color: var(--sage);
+  opacity: 0.68;
+}
+
+.diet-leaf-sprig::before {
+  position: absolute;
+  top: 8%;
+  left: 51%;
+  width: 2px;
+  height: 88%;
+  content: "";
+  border-radius: 999px;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--sage) 58%, transparent), transparent);
+  transform: rotate(17deg);
+}
+
+.diet-leaf {
+  position: absolute;
+  width: 44px;
+  height: 22px;
+  border: 1px solid color-mix(in srgb, var(--sage) 32%, transparent);
+  border-radius: 100% 0 100% 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--sage) 42%, transparent), color-mix(in srgb, var(--sage) 14%, transparent));
+}
+
+.diet-leaf::after {
+  position: absolute;
+  top: 50%;
+  left: 12%;
+  width: 76%;
+  height: 1px;
+  content: "";
+  background: color-mix(in srgb, var(--sage) 48%, transparent);
+  transform: rotate(-18deg);
+  transform-origin: left center;
+}
+
+.diet-leaf:nth-child(1) { top: 7%; left: 51%; transform: rotate(-42deg); }
+.diet-leaf:nth-child(2) { top: 20%; left: 17%; transform: rotate(28deg) scaleX(-1); }
+.diet-leaf:nth-child(3) { top: 32%; left: 48%; transform: rotate(-36deg); }
+.diet-leaf:nth-child(4) { top: 45%; left: 12%; transform: rotate(30deg) scaleX(-1); }
+.diet-leaf:nth-child(5) { top: 57%; left: 44%; transform: rotate(-38deg); }
+.diet-leaf:nth-child(6) { top: 70%; left: 7%; transform: rotate(28deg) scaleX(-1); }
+.diet-leaf:nth-child(7) { top: 81%; left: 40%; transform: rotate(-34deg); }
+
+.diet-leaf-sprig--flipped {
+  transform: scaleX(-1);
+}
+
+.diet-leaf-sprig--left-top,
+.diet-leaf-sprig--right-upper,
+.diet-leaf-sprig--left-middle,
+.diet-leaf-sprig--right-middle,
+.diet-leaf-sprig--left-lower,
+.diet-leaf-sprig--right-bottom {
+  z-index: 0;
+}
+
+.diet-leaf-sprig--left-top {
+  top: 1%;
+  left: 12px;
+  opacity: 0.55;
+}
+
+.diet-leaf-sprig--right-upper {
+  top: 16%;
+  right: 12px;
+  opacity: 0.52;
+}
+
+.diet-leaf-sprig--left-middle {
+  top: 37%;
+  left: 8px;
+  opacity: 0.42;
+}
+
+.diet-leaf-sprig--right-middle {
+  top: 51%;
+  right: 8px;
+  opacity: 0.46;
+}
+
+.diet-leaf-sprig--left-lower {
+  top: 69%;
+  left: 12px;
+  opacity: 0.5;
+}
+
+.diet-leaf-sprig--right-bottom {
+  right: 12px;
+  bottom: 1%;
+  opacity: 0.58;
+}
+
+@media (max-width: 640px) {
+  .diet-leaf-sprig--left-middle,
+  .diet-leaf-sprig--right-middle {
+    display: none;
+  }
+}

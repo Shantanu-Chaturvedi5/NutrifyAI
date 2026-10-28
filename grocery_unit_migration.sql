@@ -1,0 +1,1 @@
+ALTER TABLE grocery_cart_items ADD COLUMN IF NOT EXISTS unit VARCHAR(20) NOT NULL DEFAULT 'pack';

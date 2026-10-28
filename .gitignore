@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# Build output
+.next/
+target/
+*.class
+
+# Secrets — never commit these
+.env
+.env.production
+backend-core/.env
+backend-core/.env.production
+ai-service/.env
+ai-service/.env.production
+frontend/.env
+frontend/.env.production
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/

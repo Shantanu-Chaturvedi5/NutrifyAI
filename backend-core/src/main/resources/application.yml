@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: nutrifyai-core
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/nutrifyai}
+    username: ${SPRING_DATASOURCE_USERNAME:nutrifyai}
+    password: ${SPRING_DATASOURCE_PASSWORD:nutrifyai_dev_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate   # schema is owned by infra/postgres/init/01-schema.sql, not Hibernate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+nutrifyai:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-.env-this-is-not-a-real-secret}
+    access-token-ttl-minutes: 15
+    refresh-token-ttl-days: 30
+  ai-service:
+    base-url: ${AI_SERVICE_BASE_URL:http://localhost:8000}
+    internal-token: ${AI_SERVICE_INTERNAL_TOKEN:change-me-in-.env}
+  aws:
+    s3-bucket: ${AWS_S3_BUCKET:nutrifyai-dev}
+    region: ${AWS_REGION:ap-south-1}
+  local-storage:
+    path: ${LOCAL_STORAGE_PATH:/app/data/uploads}
