@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { authedFetch, authedFetchMultipart, BackendError } from "@/lib/backend";
-import type { MedicalReportResponse, ReportType } from "@/lib/types";
+import type {
+  MedicalReportResponse,
+  ReportExtractedValueResponse,
+  ReportType,
+} from "@/lib/types";
 
 export interface ActionState {
   error?: string;
@@ -41,6 +45,10 @@ export async function uploadReportAction(
 /** Called from a client polling component — a plain server action, not tied to a form. */
 export async function getReportStatusAction(reportId: number): Promise<MedicalReportResponse> {
   return authedFetch<MedicalReportResponse>(`/reports/${reportId}`);
+}
+
+export async function getReportValuesAction(reportId: number): Promise<ReportExtractedValueResponse[]> {
+  return authedFetch<ReportExtractedValueResponse[]>(`/reports/${reportId}/values`);
 }
 
 export async function deleteReportAction(reportId: number): Promise<void> {
