@@ -110,6 +110,29 @@ From here, the `certbot` service in `docker-compose.prod.yml` handles
 renewal automatically — it's a no-op until the cert is actually close to
 expiring.
 
+### Temporary HTTPS demo without a domain
+
+For a no-domain demo, use the Cloudflare Quick Tunnel override instead of
+the nginx/certbot steps above. It routes HTTPS traffic to the frontend
+over an outbound tunnel, so no inbound ports or DNS records are needed:
+
+```bash
+docker compose \
+  -f docker-compose.prod.yml \
+  -f docker-compose.tunnel.yml \
+  --env-file .env.production up -d --build
+
+docker compose \
+  -f docker-compose.prod.yml \
+  -f docker-compose.tunnel.yml \
+  --env-file .env.production logs -f cloudflared
+```
+
+Open the `trycloudflare.com` URL printed in the tunnel logs. This URL is
+temporary and can change when the tunnel restarts; Quick Tunnels have no
+availability guarantee and are for demos, not production. Do not enter
+real or sensitive health information on a public demo.
+
 ## 5. Seed the knowledge base
 
 One-time, same as local dev:
@@ -120,7 +143,8 @@ dc exec ai-service python -m app.rag.seed_kb
 
 ## 6. Verify
 
-- `https://YOUR_DOMAIN` should load the landing page.
+- `https://YOUR_DOMAIN` should load the landing page, or use the
+  `trycloudflare.com` URL from `cloudflared` logs for a temporary demo.
 - `dc logs -f` to watch all services.
 - Register an account, fill in a health profile, and check a product page —
   that exercises the frontend → backend-core → ai-service chain end to end.
@@ -148,6 +172,9 @@ git pull
 dc build
 dc up -d
 ```
+
+For the temporary tunnel setup, include `-f docker-compose.tunnel.yml`
+in both Compose commands.
 
 Compose only recreates containers whose image actually changed, so this
 is safe to run even when only one service was touched.

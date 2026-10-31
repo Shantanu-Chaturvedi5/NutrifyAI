@@ -1,0 +1,17 @@
+services:
+  nginx:
+    profiles:
+      - custom-domain
+
+  certbot:
+    profiles:
+      - custom-domain
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: nutrifyai-cloudflared
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "--url", "http://frontend:3000"]
+    depends_on:
+      - frontend
+    mem_limit: 128m
