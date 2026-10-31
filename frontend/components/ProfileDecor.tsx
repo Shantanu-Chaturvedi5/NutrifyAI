@@ -74,7 +74,7 @@ export function ProfileDecor() {
       <Leaves className="bottom-[30px] right-0" size="w-[220px] h-[300px]" flip />
 
       {/* Quotes */}
-      <Quote className="left-[60px] top-[26%]">
+      <Quote className="left-[24px] top-[26%]">
         Small habits,<br />big change
       </Quote>
       <Quote className="right-[38px] top-[46%]">
