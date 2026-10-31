@@ -59,6 +59,8 @@ services:
       SPRING_REDIS_HOST: redis
       AI_SERVICE_BASE_URL: http://ai-service:8000
     mem_limit: 1g
+    volumes:
+      - local_uploads:/app/data/uploads
 
   ai-service:
     build:
@@ -78,6 +80,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     mem_limit: 2g
+    volumes:
+      - local_uploads:/app/data/uploads
 
   frontend:
     build:
@@ -125,3 +129,4 @@ volumes:
   postgres_data:
   certbot_www:
   certbot_certs:
+  local_uploads:
