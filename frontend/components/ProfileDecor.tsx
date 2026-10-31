@@ -83,7 +83,7 @@ export function ProfileDecor() {
       <Quote className="left-[64px] top-[60%]">
         Know your<br />numbers
       </Quote>
-      <Quote className="bottom-[170px] right-[44px]">
+      <Quote className="bottom-[170px] right-[37px]">
         Fuel your<br />Potential
       </Quote>
     </div>
