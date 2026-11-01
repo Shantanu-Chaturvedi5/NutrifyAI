@@ -79,9 +79,10 @@ services:
     # containerized), the host needs to be reachable from here:
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    mem_limit: 2g
+    mem_limit: 3g
     volumes:
       - local_uploads:/app/data/uploads
+      - paddleocr_models:/home/app/.paddleocr
 
   frontend:
     build:
@@ -130,3 +131,4 @@ volumes:
   certbot_www:
   certbot_certs:
   local_uploads:
+  paddleocr_models:
