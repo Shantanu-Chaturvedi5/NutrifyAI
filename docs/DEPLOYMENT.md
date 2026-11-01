@@ -11,9 +11,10 @@ A small VPS is enough — nothing here needs a GPU:
 
 - **If `LLM_PROVIDER=groq`** (recommended for a public deployment — see
   the reasoning in `ai-service/.env.production.example` and the earlier
-  architecture discussion): any small VPS works. 2 vCPU / 4GB RAM
-  (e.g. Hetzner CX22, DigitalOcean's basic droplet) is comfortable —
-  PaddleOCR's model loading is the main memory user, not the LLM calls.
+  architecture discussion): budget for at least 2 vCPU / 8GB RAM. The AI
+  container is allowed up to 4GB because PaddleOCR can exceed 3GB during
+  report analysis; the database, backend, frontend, and host also need
+  memory. A 4GB server is not sufficient for the full stack.
 - **If `LLM_PROVIDER=ollama`**: you're running the model on the VPS
   itself now (not your laptop), so budget accordingly — an 8B model
   wants at least 8GB RAM and responses will be slow on CPU-only
@@ -57,10 +58,18 @@ Fill in every blank value. Generate strong secrets with:
 openssl rand -base64 48
 ```
 
-`JWT_SECRET` and `AI_SERVICE_INTERNAL_TOKEN` each need one — the latter
-must be **identical** in `backend-core/.env.production` and
-`ai-service/.env.production`, since it's how they authenticate to each
-other.
+For `POSTGRES_PASSWORD`, use a URL-safe hex value instead:
+
+```bash
+openssl rand -hex 32
+```
+
+The password is embedded in the AI service's PostgreSQL connection URL,
+so base64 characters such as `+`, `/`, and `=` must not be used there.
+`JWT_SECRET` and `AI_SERVICE_INTERNAL_TOKEN` each need a strong random
+value — the latter must be **identical** in
+`backend-core/.env.production` and `ai-service/.env.production`, since
+it's how they authenticate to each other.
 
 Replace `YOUR_DOMAIN` in both `infra/nginx/nginx.conf` and
 `infra/nginx/nginx.bootstrap.conf` with your real domain.
