@@ -158,7 +158,10 @@ async def analyze_report(
             ocr_text=ocr_text[:MAX_OCR_CHARS],
         )
         if settings.LLM_PROVIDER == "groq":
-            llm = llm.bind(response_format=REPORT_ANALYSIS_RESPONSE_FORMAT)
+            llm = llm.bind(
+                response_format=REPORT_ANALYSIS_RESPONSE_FORMAT,
+                max_completion_tokens=8192,
+            )
         response = await asyncio.to_thread(llm.invoke, prompt)
         content = response.content if hasattr(response, "content") else str(response)
 
