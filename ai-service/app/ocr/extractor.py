@@ -17,7 +17,12 @@ _engine: PaddleOCR | None = None
 def _get_engine() -> PaddleOCR:
     global _engine
     if _engine is None:
-        _engine = PaddleOCR(use_angle_cls=True, lang="en", show_log=False)
+        _engine = PaddleOCR(
+            use_angle_cls=True,
+            lang="en",
+            show_log=False,
+            cpu_threads=2,
+        )
     return _engine
 
 
