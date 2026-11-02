@@ -17,6 +17,7 @@ import json
 import logging
 
 from app.core.llm_provider import get_chat_model
+from app.core.config import settings
 from app.ocr.extractor import extract_text
 from app.schemas.personalization import HealthContextSchema
 from app.services.backend_callback import send_report_analysis_result
@@ -70,6 +71,49 @@ NO_HEALTH_CONTEXT_NOTE = "This patient hasn't set up a health profile yet — ba
 # so we don't blow past a small model's context window.
 MAX_OCR_CHARS = 8000
 
+REPORT_ANALYSIS_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "report_analysis",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "summary": {"type": "string"},
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "parameterName": {"type": "string"},
+                            "value": {"type": ["number", "null"]},
+                            "unit": {"type": ["string", "null"]},
+                            "referenceRangeLow": {"type": ["number", "null"]},
+                            "referenceRangeHigh": {"type": ["number", "null"]},
+                            "status": {
+                                "type": "string",
+                                "enum": ["NORMAL", "LOW", "HIGH", "DEFICIENT", "CRITICAL"],
+                            },
+                        },
+                        "required": [
+                            "parameterName",
+                            "value",
+                            "unit",
+                            "referenceRangeLow",
+                            "referenceRangeHigh",
+                            "status",
+                        ],
+                        "additionalProperties": False,
+                    },
+                },
+                "suggestions": {"type": "array", "items": {"type": "string"}},
+            },
+            "required": ["summary", "values", "suggestions"],
+            "additionalProperties": False,
+        },
+    },
+}
+
 
 def _health_context_block(health_context: HealthContextSchema) -> str:
     if not any([health_context.conditions, health_context.goals,
@@ -113,6 +157,8 @@ async def analyze_report(
             health_context_block=_health_context_block(health_context),
             ocr_text=ocr_text[:MAX_OCR_CHARS],
         )
+        if settings.LLM_PROVIDER == "groq":
+            llm = llm.bind(response_format=REPORT_ANALYSIS_RESPONSE_FORMAT)
         response = await asyncio.to_thread(llm.invoke, prompt)
         content = response.content if hasattr(response, "content") else str(response)
 
@@ -121,7 +167,7 @@ async def analyze_report(
             logger.warning("Report %s: could not parse LLM response as JSON: %r", report_id, content[:500])
             await send_report_analysis_result(
                 report_id, False,
-                "The AI model's response couldn't be parsed as structured data. A different LLM_PROVIDER may do better on this report.",
+                "The AI model returned an invalid structured response. Please retry the analysis.",
                 {"rawText": ocr_text, "llmRawResponse": content}, []
             )
             return

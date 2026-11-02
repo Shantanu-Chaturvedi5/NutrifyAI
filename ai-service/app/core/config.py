@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     # Ollama when this is the chat provider (see llm_provider.py).
     GROQ_API_KEY: str | None = None
     GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
 
     OPENAI_API_KEY: str | None = None
     OPENAI_MODEL: str = "gpt-4o"
