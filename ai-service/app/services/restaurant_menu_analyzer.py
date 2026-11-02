@@ -62,7 +62,7 @@ OCR TEXT:
 ---
 """
 
-MAX_OCR_CHARS = 6000  # a menu can span several pages/columns
+MAX_OCR_CHARS = 5000  # a menu can span several pages/columns
 
 MENU_ANALYSIS_RESPONSE_FORMAT = {
     "type": "json_schema",
@@ -128,7 +128,7 @@ async def analyze_restaurant_menu(menu_id: int, request: AnalyzeRestaurantMenuRe
         if settings.LLM_PROVIDER in ("groq", "openai"):
             llm = llm.bind(
                 response_format=MENU_ANALYSIS_RESPONSE_FORMAT,
-                max_completion_tokens=8192,
+                max_completion_tokens=5000 if settings.LLM_PROVIDER == "groq" else 8192,
             )
         response = await asyncio.to_thread(llm.invoke, prompt)
         content = response.content if hasattr(response, "content") else str(response)
