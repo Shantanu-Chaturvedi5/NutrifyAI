@@ -22,6 +22,7 @@ def _get_engine() -> PaddleOCR:
             lang="en",
             show_log=False,
             cpu_threads=2,
+            rec_batch_num=1,
         )
     return _engine
 
@@ -49,7 +50,7 @@ def extract_text(file_bytes: bytes, content_type: str | None = None) -> str:
 # instead, scaling the DPI down for oversized pages rather than ever
 # producing more than a fixed, safe number of pixels.
 _TARGET_DPI = 200
-_MAX_RENDER_PIXELS = 4000  # longest side, at most — generous for any real scanned page
+_MAX_RENDER_PIXELS = 2400
 
 
 def _safe_render_matrix(page) -> fitz.Matrix:
@@ -67,6 +68,16 @@ def _ocr_image_bytes(image_bytes: bytes) -> list[str]:
     image = cv2.imdecode(array, cv2.IMREAD_COLOR)
     if image is None:
         return []
+
+    height, width = image.shape[:2]
+    longest_side = max(height, width)
+    if longest_side > _MAX_RENDER_PIXELS:
+        scale = _MAX_RENDER_PIXELS / longest_side
+        image = cv2.resize(
+            image,
+            (round(width * scale), round(height * scale)),
+            interpolation=cv2.INTER_AREA,
+        )
 
     result = engine.ocr(image, cls=True)
     lines: list[str] = []
