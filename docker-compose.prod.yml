@@ -80,6 +80,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     mem_limit: 6g
+    memswap_limit: 8g
     volumes:
       - local_uploads:/app/data/uploads
       - paddleocr_models:/home/app/.paddleocr

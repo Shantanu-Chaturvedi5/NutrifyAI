@@ -11,10 +11,10 @@ A small VPS is enough — nothing here needs a GPU:
 
 - **If `LLM_PROVIDER=groq`** (recommended for a public deployment — see
   the reasoning in `ai-service/.env.production.example` and the earlier
-  architecture discussion): budget for at least 2 vCPU / 8GB RAM. The AI
-  container is allowed up to 4GB because PaddleOCR can exceed 3GB during
-  report analysis; the database, backend, frontend, and host also need
-  memory. A 4GB server is not sufficient for the full stack.
+  architecture discussion): budget for at least 2 vCPU / 8GB RAM plus
+  4GB of host swap. The AI container can use up to 6GB RAM and 2GB swap
+  during PaddleOCR analysis; the database, backend, frontend, and host
+  also need memory. A 4GB server is not sufficient for the full stack.
 - **If `LLM_PROVIDER=ollama`**: you're running the model on the VPS
   itself now (not your laptop), so budget accordingly — an 8B model
   wants at least 8GB RAM and responses will be slow on CPU-only
@@ -34,6 +34,17 @@ sudo usermod -aG docker $USER
 # log out and back in for the group change to take effect
 
 sudo apt-get install -y docker-compose-plugin
+```
+
+For an 8GB demo server, a 4GB swap file provides a slower memory-pressure
+buffer for OCR without adding another cloud volume:
+
+```bash
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 ```
 
 Open ports 80 and 443 in whatever firewall/security-group sits in front
