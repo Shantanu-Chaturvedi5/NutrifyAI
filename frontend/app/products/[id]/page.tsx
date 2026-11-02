@@ -25,7 +25,7 @@ import type {
 const scoreMetrics = [
   ["Health", "healthScore", "var(--sage)"],
   ["Nutrition", "nutritionScore", "var(--scan-action)"],
-  ["Risk indicators · higher means more risk", "riskScore", "var(--garnet)"],
+  ["Risk indicators", "riskScore", "var(--garnet)"],
 ] as const;
 
 function clampScore(score: number) {
@@ -70,7 +70,7 @@ export default async function ProductDetailPage({
   ].filter((item) => item.value != null);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 pb-12 text-graphite">
+    <main className="mx-auto max-w-6xl space-y-7 pb-12 text-graphite">
       <Link
         href="/products"
         className="inline-flex items-center gap-2 rounded-lg text-sm font-semibold text-graphite-70 transition hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage"
@@ -81,8 +81,25 @@ export default async function ProductDetailPage({
 
       <header className="overflow-hidden rounded-[28px] border border-hairline bg-card shadow-[0_20px_50px_rgba(28,34,28,0.07)]">
         <div className="h-1.5 bg-gradient-to-r from-[#5e9d76] via-[#b2c69a] to-[#e6ead2]" />
-        <div className="flex flex-col gap-6 p-5 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0">
+        <div className="flex flex-col gap-6 p-5 sm:p-8 lg:flex-row lg:items-center lg:gap-8">
+          <div className="relative mx-auto flex h-48 w-full max-w-[220px] shrink-0 items-center justify-center overflow-hidden rounded-[22px] border border-hairline bg-[radial-gradient(circle_at_50%_35%,#ffffff_0%,#f0f4eb_68%,#e2e9d8_100%)] sm:h-56 sm:w-48">
+            {product.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="h-full w-full object-contain p-4"
+              />
+            ) : (
+              <div className="flex h-32 w-28 rotate-[-3deg] flex-col items-center justify-center rounded-[20px] border border-white/80 bg-white/70 px-3 text-center shadow-[0_14px_30px_rgba(28,34,28,0.08)]">
+                <Leaf className="mb-3 h-7 w-7 text-sage" />
+                <span className="line-clamp-3 text-xs font-semibold leading-snug text-graphite-70">
+                  {product.name}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-sage-soft px-3 py-1 font-data text-[10px] font-semibold uppercase tracking-[0.13em] text-sage">
                 {product.source === "USER_SCANNED" ? <Sparkles className="h-3 w-3" /> : <Leaf className="h-3 w-3" />}
@@ -101,17 +118,19 @@ export default async function ProductDetailPage({
             {product.description && (
               <p className="mt-4 max-w-2xl text-sm leading-6 text-graphite-70">{product.description}</p>
             )}
+            {user && (
+              <div className="mt-5 flex flex-wrap gap-2">
+                <AddToGroceryButton productId={productId} />
+                <LogIntakeButton productId={productId} />
+              </div>
+            )}
           </div>
-          {user && (
-            <div className="flex flex-wrap gap-2">
-              <AddToGroceryButton productId={productId} />
-              <LogIntakeButton productId={productId} />
-            </div>
-          )}
         </div>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-hairline bg-linen/50 px-5 py-3 text-xs text-graphite-70 sm:px-8">
           {nutrition?.servingSize && (
-            <span className="font-medium">Serving size: {nutrition.servingSize}</span>
+            <span className="rounded-full bg-card px-3 py-1.5 font-medium text-graphite">
+              Serving size: {nutrition.servingSize}
+            </span>
           )}
           {product.barcode && (
             <span className="inline-flex items-center gap-1.5 font-data">
@@ -147,53 +166,67 @@ export default async function ProductDetailPage({
                 <p className="mt-1 text-sm text-graphite-70">No nutrient values were recorded for this product.</p>
               </div>
             ) : (
-              <div className="grid gap-px bg-hairline sm:grid-cols-2">
-                {nutrients.map((item) => (
-                  <div
-                    key={item.label}
-                    className={`flex items-center justify-between gap-3 bg-card px-5 py-4 sm:px-6 ${item.featured ? "sm:col-span-2 sm:bg-sage-soft/35" : ""}`}
-                  >
-                    <span className={`text-sm ${item.featured ? "font-semibold text-graphite" : "text-graphite-70"}`}>
-                      {item.label}
-                    </span>
-                    <span className={`font-data tabular-nums text-graphite ${item.featured ? "text-xl font-semibold" : "text-sm font-medium"}`}>
-                      {item.value} <span className="text-xs font-normal text-graphite-45">{item.unit}</span>
-                    </span>
+              <div className="space-y-4 p-4 sm:p-6">
+                {nutrients.filter((item) => item.featured).map((item) => (
+                  <div key={item.label} className="flex items-center justify-between rounded-2xl bg-sage-soft/45 px-5 py-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sage">{item.label}</p>
+                      <p className="mt-1 text-xs text-graphite-70">Energy per serving</p>
+                    </div>
+                    <p className="font-data text-3xl font-semibold tabular-nums tracking-tight text-graphite">
+                      {item.value}<span className="ml-1 text-sm font-medium text-graphite-70">{item.unit}</span>
+                    </p>
                   </div>
                 ))}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {nutrients.filter((item) => !item.featured).map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-hairline bg-card px-4 py-3 transition-colors hover:bg-linen/50"
+                    >
+                      <span className="text-sm text-graphite-70">{item.label}</span>
+                      <span className="shrink-0 font-data text-sm font-semibold tabular-nums text-graphite">
+                        {item.value}<span className="ml-1 text-xs font-normal text-graphite-45">{item.unit}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </section>
 
           {personalizedScore && (
             <section className="overflow-hidden rounded-3xl border border-sage/20 bg-card shadow-sm">
-              <div className="border-b border-sage/15 px-5 py-5 sm:px-6">
+              <div className="border-b border-sage/15 bg-[linear-gradient(110deg,rgba(20,146,100,0.08),transparent_65%)] px-5 py-5 sm:px-6">
                 <p className="font-data text-[10px] font-semibold uppercase tracking-[0.16em] text-sage">Your health profile</p>
                 <h2 className="mt-1 font-display text-2xl font-semibold tracking-[-0.03em]">Personalized fit</h2>
-                <p className="mt-1 text-xs text-graphite-70">A transparent heuristic, not a clinical assessment.</p>
+                <p className="mt-1 text-xs leading-5 text-graphite-70">A transparent guide based on your profile, not a clinical assessment.</p>
               </div>
               <div className="grid gap-5 p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:p-6">
-                <div className="flex items-center gap-4 sm:block sm:text-center">
+                <div className="flex items-center gap-4 rounded-2xl bg-linen/65 p-4 sm:block sm:text-center">
                   <RadialGauge
                     value={clampScore(personalizedScore.suitabilityScore)}
                     max={100}
                     label="FIT"
-                    size={112}
+                    size={128}
                     color="var(--sage)"
                   />
                   <div className="sm:mt-2">
-                    <p className="text-sm font-semibold">Suitability</p>
-                    <p className="text-xs text-graphite-70">out of 100</p>
+                    <p className="text-sm font-semibold">Overall suitability</p>
+                    <p className="text-xs text-graphite-70">Personal fit · out of 100</p>
                   </div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {scoreMetrics.map(([label, key, color]) => {
                     const score = clampScore(personalizedScore[key]);
                     return (
                       <div key={key}>
                         <div className="mb-1.5 flex items-center justify-between text-xs">
-                          <span className="text-graphite-70">{label}</span>
-                          <span className="font-data font-semibold text-graphite">{score}/100</span>
+                          <span className="text-graphite-70">
+                            {label}
+                            {key === "riskScore" && <span className="ml-1 text-[10px] text-graphite-45">(higher = more risk)</span>}
+                          </span>
+                          <span className="rounded-full bg-linen px-2.5 py-1 font-data font-semibold text-graphite">{score}/100</span>
                         </div>
                         <div
                           role="progressbar"
@@ -201,7 +234,7 @@ export default async function ProductDetailPage({
                           aria-valuemin={0}
                           aria-valuemax={100}
                           aria-valuenow={score}
-                          className="h-2 overflow-hidden rounded-full bg-linen-deep"
+                          className="h-2.5 overflow-hidden rounded-full bg-linen-deep"
                         >
                           <div className="h-full rounded-full transition-[width]" style={{ width: `${score}%`, backgroundColor: color }} />
                         </div>
