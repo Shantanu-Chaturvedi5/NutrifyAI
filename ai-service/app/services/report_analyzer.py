@@ -69,7 +69,7 @@ NO_HEALTH_CONTEXT_NOTE = "This patient hasn't set up a health profile yet — ba
 
 # Small/local models can produce noisy OCR-derived prompts — cap input size
 # so we don't blow past a small model's context window.
-MAX_OCR_CHARS = 6000
+MAX_OCR_CHARS = 8000
 
 REPORT_ANALYSIS_RESPONSE_FORMAT = {
     "type": "json_schema",
@@ -160,7 +160,7 @@ async def analyze_report(
         if settings.LLM_PROVIDER == "groq":
             llm = llm.bind(
                 response_format=REPORT_ANALYSIS_RESPONSE_FORMAT,
-                max_completion_tokens=6000,
+                max_completion_tokens=8192,
             )
         response = await asyncio.to_thread(llm.invoke, prompt)
         content = response.content if hasattr(response, "content") else str(response)

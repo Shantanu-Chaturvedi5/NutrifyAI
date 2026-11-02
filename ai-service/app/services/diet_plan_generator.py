@@ -139,11 +139,10 @@ async def generate_diet_plan(plan_id: int, request: GenerateDietPlanRequest) -> 
         llm = get_chat_model()
         if settings.LLM_PROVIDER in ("groq", "openai"):
             # The 7-day response is a large nested document; enforce its
-            # shape and leave enough output budget for all 28 meals while
-            # staying below Groq's 8,000-token request ceiling.
+            # shape and leave enough output budget for all 28 meals.
             llm = llm.bind(
                 response_format=DIET_PLAN_RESPONSE_FORMAT,
-                max_completion_tokens=6000 if settings.LLM_PROVIDER == "groq" else 16384,
+                max_completion_tokens=16384,
             )
         # llm.invoke is a blocking network call — offload it so this
         # service's event loop stays free for other requests while

@@ -62,7 +62,7 @@ OCR TEXT:
 ---
 """
 
-MAX_OCR_CHARS = 5000  # a menu can span several pages/columns
+MAX_OCR_CHARS = 5000  # keep OCR input within Groq's request token ceiling
 
 MENU_ANALYSIS_RESPONSE_FORMAT = {
     "type": "json_schema",
