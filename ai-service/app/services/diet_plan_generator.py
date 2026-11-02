@@ -16,6 +16,7 @@ import asyncio
 import json
 import logging
 
+from app.core.config import settings
 from app.core.llm_provider import get_chat_model
 from app.schemas.diet_plan import GenerateDietPlanRequest
 from app.services.backend_callback import send_diet_plan_result
@@ -61,6 +62,67 @@ Rules:
 - "description" is one or two sentences — what it is and roughly how it's prepared, not a full recipe.
 """
 
+DIET_PLAN_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "diet_plan",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "dayTemplates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "meals": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mealType": {
+                                            "type": "string",
+                                            "enum": ["BREAKFAST", "LUNCH", "DINNER", "SNACK"],
+                                        },
+                                        "name": {"type": "string"},
+                                        "calories": {"type": "number"},
+                                        "proteinG": {"type": "number"},
+                                        "fatG": {"type": "number"},
+                                        "saturatedFatG": {"type": "number"},
+                                        "carbsG": {"type": "number"},
+                                        "sugarG": {"type": "number"},
+                                        "fiberG": {"type": "number"},
+                                        "sodiumMg": {"type": "number"},
+                                        "description": {"type": "string"},
+                                    },
+                                    "required": [
+                                        "mealType",
+                                        "name",
+                                        "calories",
+                                        "proteinG",
+                                        "fatG",
+                                        "saturatedFatG",
+                                        "carbsG",
+                                        "sugarG",
+                                        "fiberG",
+                                        "sodiumMg",
+                                        "description",
+                                    ],
+                                    "additionalProperties": False,
+                                },
+                            }
+                        },
+                        "required": ["meals"],
+                        "additionalProperties": False,
+                    },
+                }
+            },
+            "required": ["dayTemplates"],
+            "additionalProperties": False,
+        },
+    },
+}
+
 
 async def generate_diet_plan(plan_id: int, request: GenerateDietPlanRequest) -> None:
     try:
@@ -75,6 +137,13 @@ async def generate_diet_plan(plan_id: int, request: GenerateDietPlanRequest) -> 
         )
 
         llm = get_chat_model()
+        if settings.LLM_PROVIDER in ("groq", "openai"):
+            # The 7-day response is a large nested document; enforce its
+            # shape and leave enough output budget for all 28 meals.
+            llm = llm.bind(
+                response_format=DIET_PLAN_RESPONSE_FORMAT,
+                max_completion_tokens=16384,
+            )
         # llm.invoke is a blocking network call — offload it so this
         # service's event loop stays free for other requests while
         # generation is in progress (same reasoning as report_analyzer.py
@@ -84,11 +153,11 @@ async def generate_diet_plan(plan_id: int, request: GenerateDietPlanRequest) -> 
 
         parsed = _parse_llm_json(content)
         day_templates = parsed.get("dayTemplates") if parsed else None
-        if not day_templates:
+        if not _has_valid_day_templates(day_templates):
             logger.warning("Diet plan %s: could not parse LLM response as JSON: %r", plan_id, content[:500])
             await send_diet_plan_result(
                 plan_id, False,
-                "The AI model's response couldn't be parsed as structured data. A different LLM_PROVIDER may do better here.",
+                "The AI model returned an incomplete or invalid meal plan. Please retry generation.",
                 None,
             )
             return
@@ -121,3 +190,45 @@ def _parse_llm_json(content: str) -> dict | None:
             return None
 
     return None
+
+def _has_valid_day_templates(day_templates: object) -> bool:
+    if not isinstance(day_templates, list) or len(day_templates) != 7:
+        return False
+
+    required_meal_types = {"BREAKFAST", "LUNCH", "DINNER", "SNACK"}
+    required_nutrients = (
+        "calories",
+        "proteinG",
+        "fatG",
+        "saturatedFatG",
+        "carbsG",
+        "sugarG",
+        "fiberG",
+        "sodiumMg",
+    )
+    for day in day_templates:
+        if not isinstance(day, dict):
+            return False
+        meals = day.get("meals")
+        if not isinstance(meals, list) or len(meals) != 4:
+            return False
+        if not all(
+            isinstance(meal, dict)
+            and isinstance(meal.get("mealType"), str)
+            and meal["mealType"] in required_meal_types
+            and isinstance(meal.get("name"), str)
+            and bool(meal["name"].strip())
+            and isinstance(meal.get("description"), str)
+            and all(
+                isinstance(meal.get(field), (int, float))
+                and not isinstance(meal.get(field), bool)
+                for field in required_nutrients
+            )
+            for meal in meals
+        ):
+            return False
+        meal_types = {meal["mealType"] for meal in meals}
+        if len(meal_types) != 4 or meal_types != required_meal_types:
+            return False
+
+    return True

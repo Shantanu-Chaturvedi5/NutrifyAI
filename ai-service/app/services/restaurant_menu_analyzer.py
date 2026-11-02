@@ -16,6 +16,7 @@ import asyncio
 import json
 import logging
 
+from app.core.config import settings
 from app.core.llm_provider import get_chat_model
 from app.ocr.extractor import extract_text
 from app.schemas.restaurant_menu import AnalyzeRestaurantMenuRequest
@@ -63,6 +64,43 @@ OCR TEXT:
 
 MAX_OCR_CHARS = 6000  # a menu can span several pages/columns
 
+MENU_ANALYSIS_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "restaurant_menu_analysis",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "restaurantNameGuess": {"type": ["string", "null"]},
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "itemName": {"type": "string"},
+                            "estimatedCalories": {"type": ["number", "null"]},
+                            "estimatedProteinG": {"type": ["number", "null"]},
+                            "isRecommended": {"type": "boolean"},
+                            "recommendationReason": {"type": "string"},
+                        },
+                        "required": [
+                            "itemName",
+                            "estimatedCalories",
+                            "estimatedProteinG",
+                            "isRecommended",
+                            "recommendationReason",
+                        ],
+                        "additionalProperties": False,
+                    },
+                },
+            },
+            "required": ["restaurantNameGuess", "items"],
+            "additionalProperties": False,
+        },
+    },
+}
+
 
 async def analyze_restaurant_menu(menu_id: int, request: AnalyzeRestaurantMenuRequest) -> None:
     try:
@@ -87,16 +125,21 @@ async def analyze_restaurant_menu(menu_id: int, request: AnalyzeRestaurantMenuRe
         )
 
         llm = get_chat_model()
+        if settings.LLM_PROVIDER in ("groq", "openai"):
+            llm = llm.bind(
+                response_format=MENU_ANALYSIS_RESPONSE_FORMAT,
+                max_completion_tokens=8192,
+            )
         response = await asyncio.to_thread(llm.invoke, prompt)
         content = response.content if hasattr(response, "content") else str(response)
 
         parsed = _parse_llm_json(content)
         items = parsed.get("items") if parsed else None
-        if not items:
+        if not isinstance(items, list) or not items or not _has_valid_menu_items(items):
             logger.warning("Menu %s: could not parse LLM response as JSON: %r", menu_id, content[:500])
             await send_restaurant_menu_result(
                 menu_id, False,
-                "The AI model's response couldn't be parsed as structured data. A different LLM_PROVIDER may do better here.",
+                "The AI model returned an incomplete or invalid menu analysis. Please retry the analysis.",
                 None, None,
             )
             return
@@ -129,3 +172,28 @@ def _parse_llm_json(content: str) -> dict | None:
             return None
 
     return None
+
+
+def _has_valid_menu_items(items: list) -> bool:
+    return all(
+        isinstance(item, dict)
+        and isinstance(item.get("itemName"), str)
+        and bool(item["itemName"].strip())
+        and isinstance(item.get("isRecommended"), bool)
+        and isinstance(item.get("recommendationReason"), str)
+        and (
+            item.get("estimatedCalories") is None
+            or (
+                isinstance(item.get("estimatedCalories"), (int, float))
+                and not isinstance(item.get("estimatedCalories"), bool)
+            )
+        )
+        and (
+            item.get("estimatedProteinG") is None
+            or (
+                isinstance(item.get("estimatedProteinG"), (int, float))
+                and not isinstance(item.get("estimatedProteinG"), bool)
+            )
+        )
+        for item in items
+    )
