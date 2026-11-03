@@ -153,17 +153,97 @@ temporary and can change when the tunnel restarts; Quick Tunnels have no
 availability guarantee and are for demos, not production. Do not enter
 real or sensitive health information on a public demo.
 
-## 5. Seed the knowledge base
+### Stable free hostname with daily EC2 start/stop
 
-One-time, same as local dev:
+To keep one URL without buying a domain, register a free hostname at
+[DuckDNS](https://www.duckdns.org/). A small updater container keeps its
+IPv4 record pointed at the instance's current public IP; Caddy provides
+HTTPS certificates automatically and reverse-proxies to the frontend.
+The hostname stays the same when EC2 stops and starts, although the site
+is unavailable while the instance is stopped and DNS may take a few
+minutes to catch up after startup.
+
+1. Register a DuckDNS account and create a subdomain, for example
+   `nutrifyai-demo.duckdns.org`. Keep the account token private.
+2. In the EC2 security group, allow inbound TCP ports 80 and 443 from
+   `0.0.0.0/0`. Keep SSH restricted to your own IP.
+3. Add these values to the root `.env.production` on EC2. Do not commit
+   or share the token:
+
+   ```dotenv
+   APP_DOMAIN=nutrifyai-demo.duckdns.org
+   DUCKDNS_SUBDOMAIN=nutrifyai-demo
+   DUCKDNS_TOKEN=your-private-duckdns-token
+   ```
+
+4. Stop and remove the old Quick Tunnel container, then start the
+   stable-hostname stack:
+
+   ```bash
+   cd ~/nutrifyai
+   sudo docker compose -f docker-compose.prod.yml -f docker-compose.tunnel.yml \
+     --env-file .env.production stop cloudflared
+   sudo docker compose -f docker-compose.prod.yml -f docker-compose.tunnel.yml \
+     --env-file .env.production rm -f cloudflared
+   sudo docker compose -f docker-compose.prod.yml -f docker-compose.ddns.yml \
+     --env-file .env.production up -d --build
+   ```
+
+   Removing the tunnel container does not delete database data or volumes.
+   Do not use `down -v`.
+5. After Caddy has obtained its first certificate, open
+   `https://nutrifyai-demo.duckdns.org`. Check
+   `sudo docker compose -f docker-compose.prod.yml -f docker-compose.ddns.yml \
+   --env-file .env.production logs --tail=80 caddy duckdns` if DNS or
+   certificate issuance is not ready yet.
+
+The hostname and TLS certificate persist across EC2 stop/start cycles.
+The instance's public IPv4 can change, so the updater refreshes DuckDNS
+while the instance is running. No Elastic IP is required. AWS hosting,
+storage, and public IPv4 usage are not guaranteed to remain free after
+credits are exhausted.
+
+### Daily 10:00–19:00 IST EC2 schedule
+
+After confirming the stable hostname works, create two daily schedules in
+**Amazon EventBridge → Scheduler** in `us-east-1`. Select `Asia/Kolkata`,
+disable the flexible time window, target the EC2 SDK actions below, and
+provide your instance ID in each target input. Let the wizard create the
+execution role if offered:
+
+| Schedule | Cron expression | EC2 action |
+|---|---|---|
+| Start daily | `cron(0 10 * * ? *)` | `StartInstances` |
+| Stop daily | `cron(0 19 * * ? *)` | `StopInstances` |
+
+Use input `{"InstanceIds":["i-your-instance-id"]}` for both schedules.
+The first start runs at the next scheduled 10:00 occurrence. The site
+usually needs a few minutes after EC2 starts before it is reachable.
+The EC2 compute portion is stopped outside this nine-hour window, but
+persistent disk and other AWS resources may continue to incur charges.
+
+## 5. Seed the product catalog and knowledge base
+
+The schema starts empty. Seed the product catalog once so the products
+page has items and category filters:
 
 ```bash
-dc exec ai-service python -m app.rag.seed_kb
+dc exec -T ai-service python -m app.catalog.seed_products
+dc exec -T ai-service python -m app.catalog.seed_fresh_produce
+```
+
+The catalog seeder fetches a curated set from Open Food Facts, so it needs
+outbound internet access. It is safe to rerun: barcode duplicates are
+skipped, and fresh produce is deduplicated by name. Then seed the knowledge
+base once, as in local development:
+
+```bash
+dc exec -T ai-service python -m app.rag.seed_kb
 ```
 
 ## 6. Verify
 
-- `https://YOUR_DOMAIN` should load the landing page, or use the
+- `https://YOUR_DOMAIN` or your stable DuckDNS hostname should load the landing page, or use the
   `trycloudflare.com` URL from `cloudflared` logs for a temporary demo.
 - `dc logs -f` to watch all services.
 - Register an account, fill in a health profile, and check a product page —
