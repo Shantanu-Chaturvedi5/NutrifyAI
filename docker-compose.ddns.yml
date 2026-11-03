@@ -31,7 +31,6 @@ services:
     environment:
       SUBDOMAINS: ${DUCKDNS_SUBDOMAIN:?Set DUCKDNS_SUBDOMAIN in .env.production}
       TOKEN: ${DUCKDNS_TOKEN:?Set DUCKDNS_TOKEN in .env.production}
-      UPDATE_IP: ipv4
       LOG_FILE: "false"
     mem_limit: 64m
 

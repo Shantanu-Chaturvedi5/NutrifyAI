@@ -159,6 +159,8 @@ To keep one URL without buying a domain, register a free hostname at
 [DuckDNS](https://www.duckdns.org/). A small updater container keeps its
 IPv4 record pointed at the instance's current public IP; Caddy provides
 HTTPS certificates automatically and reverse-proxies to the frontend.
+The updater intentionally omits `UPDATE_IP`, allowing DuckDNS itself to
+detect the public IPv4 address without an external IP-detection service.
 The hostname stays the same when EC2 stops and starts, although the site
 is unavailable while the instance is stopped and DNS may take a few
 minutes to catch up after startup.
